@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
+import com.thooyavan95.githubtrendingrepositories.entity.UiStatus
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
 
 class RepositoryListingFragment : Fragment() {
@@ -35,8 +36,26 @@ class RepositoryListingFragment : Fragment() {
             adapter = repoAdapter
         }
 
-        viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer {
-            repoAdapter.updateRepoList(it)
+        viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer { uiStatus ->
+
+            when(uiStatus){
+
+                is UiStatus.Loading -> {
+                    binding?.progressBar?.show()
+                    binding?.retryButton?.visibility = View.GONE
+                }
+                is UiStatus.Content -> {
+                    repoAdapter.updateRepoList(uiStatus.content)
+                    binding?.progressBar?.hide()
+                    binding?.retryButton?.visibility = View.GONE
+                }
+                is UiStatus.Error -> {
+                    binding?.progressBar?.hide()
+                    binding?.retryButton?.visibility = View.VISIBLE
+                }
+
+            }
+
         })
 
     }
