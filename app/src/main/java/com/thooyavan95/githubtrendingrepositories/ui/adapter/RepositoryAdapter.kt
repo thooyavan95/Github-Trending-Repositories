@@ -23,6 +23,7 @@ class RepositoryAdapter : RecyclerView.Adapter<RepositoryItemViewHolder>() {
 
     fun updateRepoList(listOfRepos : List<Repo>){
         repoList.addAll(listOfRepos)
+        notifyDataSetChanged()
     }
 
 }
