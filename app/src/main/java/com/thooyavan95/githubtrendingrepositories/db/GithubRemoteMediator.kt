@@ -32,7 +32,7 @@ class GithubRemoteMediator(private val database : GithubRepoDB) : RemoteMediator
 
         try {
 
-            val response = Retrofit.instance.fetchRepos()
+            val response = Retrofit.instance.fetchRepos(nextID)
 
             val endOfPagination = response.isEmpty()
 

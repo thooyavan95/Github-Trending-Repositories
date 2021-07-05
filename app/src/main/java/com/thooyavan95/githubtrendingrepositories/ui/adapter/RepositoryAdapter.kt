@@ -1,29 +1,34 @@
 package com.thooyavan95.githubtrendingrepositories.ui.adapter
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
 
-class RepositoryAdapter : RecyclerView.Adapter<RepositoryItemViewHolder>() {
-
-    private val repoList : MutableList<Repo> = mutableListOf()
+class RepositoryAdapter : PagingDataAdapter<Repo, RepositoryItemViewHolder>(REPO_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryItemViewHolder {
         return RepositoryItemViewHolder.create(parent)
     }
 
     override fun onBindViewHolder(holder: RepositoryItemViewHolder, position: Int) {
-        holder.bind(repoList[position])
+
+        val repo = getItem(position)
+        holder.bind(repo)
     }
 
-    override fun getItemCount(): Int {
+    companion object{
 
-        return if(repoList.isEmpty()) 0 else repoList.size
-    }
+        private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<Repo>(){
 
-    fun updateRepoList(listOfRepos : List<Repo>){
-        repoList.addAll(listOfRepos)
-        notifyDataSetChanged()
+            override fun areItemsTheSame(oldItem: Repo, newItem: Repo): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: Repo, newItem: Repo): Boolean {
+                return oldItem.id == newItem.id
+            }
+        }
     }
 
 }

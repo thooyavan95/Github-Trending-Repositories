@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
 import com.thooyavan95.githubtrendingrepositories.entity.UiStatus
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
+import kotlinx.coroutines.launch
 
 class RepositoryListingFragment : Fragment() {
 
@@ -38,28 +42,30 @@ class RepositoryListingFragment : Fragment() {
             adapter = repoAdapter
         }
 
-        viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer { uiStatus ->
+        observeRepoListLiveData()
+        observeRepoListLoadState()
 
-            when(uiStatus){
+    }
 
-                is UiStatus.Loading -> {
-                    binding?.progressBar?.show()
-                    binding?.retryButton?.visibility = View.GONE
-                }
-                is UiStatus.Content -> {
-                    repoAdapter.updateRepoList(uiStatus.content)
-                    binding?.progressBar?.hide()
-                    binding?.retryButton?.visibility = View.GONE
-                }
-                is UiStatus.Error -> {
-                    binding?.progressBar?.hide()
-                    binding?.retryButton?.visibility = View.VISIBLE
-                }
+    private fun observeRepoListLiveData() {
 
-            }
+        lifecycleScope.launch {
+            viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer {
+                repoAdapter.submitData(lifecycle, it)
+            })
+        }
+    }
 
-        })
 
+    private fun observeRepoListLoadState() {
+
+        repoAdapter.addLoadStateListener { loadState ->
+
+            binding?.recyclerView?.isVisible = loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading
+            binding?.retryButton?.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
+            binding?.progressBar?.isVisible = loadState.mediator?.refresh is LoadState.Loading || loadState.source.refresh is LoadState.Loading
+
+        }
     }
 
     override fun onDestroyView() {

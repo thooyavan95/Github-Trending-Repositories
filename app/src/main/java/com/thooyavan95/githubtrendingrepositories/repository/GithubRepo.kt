@@ -7,8 +7,6 @@ import androidx.paging.PagingData
 import com.thooyavan95.githubtrendingrepositories.db.GithubRemoteMediator
 import com.thooyavan95.githubtrendingrepositories.db.GithubRepoDB
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
-import com.thooyavan95.githubtrendingrepositories.entity.ResponseStatus
-import com.thooyavan95.githubtrendingrepositories.network.Retrofit
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalPagingApi::class)
@@ -33,8 +31,4 @@ class GithubRepo(private val database : GithubRepoDB) {
 
     }
 
-}
-
-interface ResponseListener{
-    fun listOfResponse(response : ResponseStatus<List<Repo>>)
 }

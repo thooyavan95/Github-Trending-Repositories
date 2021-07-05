@@ -9,10 +9,13 @@ import com.thooyavan95.githubtrendingrepositories.entity.Repo
 
 class RepositoryItemViewHolder(private val binding : ItemRepoBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(repo : Repo){
+    fun bind(repo : Repo?){
 
-        binding.itemRepoId.text = repo.id.toString()
-        binding.itemRepoName.text = repo.name
+        if(repo != null){
+
+            binding.itemRepoId.text = repo.id.toString()
+            binding.itemRepoName.text = repo.name
+        }
     }
 
     companion object{
