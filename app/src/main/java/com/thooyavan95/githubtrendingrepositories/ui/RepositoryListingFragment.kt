@@ -15,7 +15,7 @@ import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
 class RepositoryListingFragment : Fragment() {
 
     private var binding : FragmentRepositoryListingBinding? = null
-    private val viewModel by viewModels<RepoViewModel>()
+    private lateinit var viewModel : RepoViewModel
     private lateinit var repoAdapter : RepositoryAdapter
 
     override fun onCreateView(
@@ -28,6 +28,8 @@ class RepositoryListingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        viewModel = RepoViewModelFactory.getViewModel(this, requireActivity().application)
 
         repoAdapter = RepositoryAdapter()
 

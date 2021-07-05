@@ -14,7 +14,7 @@ interface RepoDAO {
     suspend fun insertAllRepo(repos : List<Repo>)
 
     @Query("SELECT * FROM repos")
-    fun getAllRepos() : PagingSource<Long, Repo>
+    fun getAllRepos() : PagingSource<Int, Repo>
 
     @Query("DELETE FROM repos")
     suspend fun clearRepo()

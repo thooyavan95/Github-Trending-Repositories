@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thooyavan95.githubtrendingrepositories.db.GithubRepoDB
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
 import com.thooyavan95.githubtrendingrepositories.entity.ResponseStatus
 import com.thooyavan95.githubtrendingrepositories.entity.UiStatus
@@ -11,13 +12,12 @@ import com.thooyavan95.githubtrendingrepositories.repository.GithubRepo
 import com.thooyavan95.githubtrendingrepositories.repository.ResponseListener
 import kotlinx.coroutines.launch
 
-class RepoViewModel : ViewModel(), ResponseListener {
+class RepoViewModel(private val githubRepo : GithubRepo) : ViewModel(), ResponseListener {
 
     private val _repoListMLD = MutableLiveData<UiStatus<List<Repo>>>()
     val repoListLiveData : LiveData<UiStatus<List<Repo>>>
         get() = _repoListMLD
 
-    private val githubRepo = GithubRepo(this)
 
     init {
         viewModelScope.launch {
