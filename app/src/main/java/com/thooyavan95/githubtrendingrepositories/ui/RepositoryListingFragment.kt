@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
-import com.thooyavan95.githubtrendingrepositories.entity.UiStatus
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
+import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryLoadStateAdapter
 import kotlinx.coroutines.launch
 
 class RepositoryListingFragment : Fragment() {
@@ -59,11 +58,31 @@ class RepositoryListingFragment : Fragment() {
 
     private fun observeRepoListLoadState() {
 
+        val header = RepositoryLoadStateAdapter{
+            repoAdapter.retry()
+        }
+
+        binding?.recyclerView?.adapter =  repoAdapter.withLoadStateHeaderAndFooter(
+            header = header,
+            footer = RepositoryLoadStateAdapter{
+                repoAdapter.retry()
+            }
+        )
+
         repoAdapter.addLoadStateListener { loadState ->
+
+            header.loadState = loadState.mediator?.refresh
+                .takeIf { it is LoadState.Error && repoAdapter.itemCount > 0 }
+                ?: loadState.prepend
 
             binding?.recyclerView?.isVisible = loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading
             binding?.retryButton?.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
-            binding?.progressBar?.isVisible = loadState.mediator?.refresh is LoadState.Loading || loadState.source.refresh is LoadState.Loading
+            binding?.progressBar?.isVisible = loadState.mediator?.refresh is LoadState.Loading
+
+            loadState.source.append as? LoadState.Error ?:
+            loadState.source.prepend as? LoadState.Error ?:
+            loadState.append as? LoadState.Error ?:
+            loadState.prepend as? LoadState.Error
 
         }
     }
