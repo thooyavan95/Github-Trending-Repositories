@@ -14,14 +14,23 @@ import com.thooyavan95.githubtrendingrepositories.R
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryLoadStateAdapter
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RepositoryListingFragment : Fragment() {
 
+
+    companion object{
+        private const val LAST_SEARCH_QUERY = "last search"
+    }
+
     private var binding : FragmentRepositoryListingBinding? = null
     private lateinit var viewModel : RepoViewModel
     private lateinit var repoAdapter : RepositoryAdapter
+    private var searchQuery : String? = null
+    private var searchJob : Job? = null
+    private var listingJob : Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +54,28 @@ class RepositoryListingFragment : Fragment() {
 
         viewModel = RepoViewModelFactory.getViewModel(this, requireActivity().application)
 
+        initAdapter()
+
+        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY)
+
+        if(query != null){
+            search(query)
+        }else{
+            observeRepoListLiveData()
+        }
+
+        observeRepoListLoadState()
+        searchQueryListener()
+
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(LAST_SEARCH_QUERY, searchQuery)
+    }
+
+    private fun initAdapter(){
+
         repoAdapter = RepositoryAdapter()
 
         binding?.recyclerView?.apply {
@@ -52,27 +83,26 @@ class RepositoryListingFragment : Fragment() {
             adapter = repoAdapter
         }
 
-        observeRepoListLiveData()
-        observeRepoListLoadState()
-        
+    }
+
+    private fun searchQueryListener(){
+
         binding?.searchView?.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener{
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    search(query)
-                    return true
-                }
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                search(query)
+                return true
+            }
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    return false
-                }
-            })
-
-
-
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
     }
 
     private fun observeRepoListLiveData() {
 
-        lifecycleScope.launch {
+        listingJob?.cancel()
+        listingJob = lifecycleScope.launch {
             viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer {
                 repoAdapter.submitData(lifecycle, it)
             })
@@ -111,14 +141,21 @@ class RepositoryListingFragment : Fragment() {
         }
     }
 
+    private fun collectSearchResultsFlow(query : String){
+
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            viewModel.doSearch(query).collectLatest {
+                repoAdapter.submitData(it)
+            }
+        }
+    }
+
     private fun search(query : String?){
 
         query?.let {
-            lifecycleScope.launch {
-                viewModel.doSearch(query).collectLatest {
-                    repoAdapter.submitData(it)
-                }
-            }
+            searchQuery = query
+            collectSearchResultsFlow(query)
         }
     }
 

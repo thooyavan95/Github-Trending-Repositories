@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 class RepoViewModel(private val githubRepo : GithubRepo) : ViewModel() {
 
     lateinit var repoListLiveData : LiveData<PagingData<Repo>>
-    lateinit var repoSearchLiveData : LiveData<PagingData<Repo>>
+    private var currentSearch : String? = null
+    private var currentSearchResult : Flow<PagingData<Repo>>? = null
 
     init {
         viewModelScope.launch {
@@ -23,8 +24,17 @@ class RepoViewModel(private val githubRepo : GithubRepo) : ViewModel() {
 
     fun doSearch(searchQuery : String) : Flow<PagingData<Repo>> {
 
-        val response = githubRepo.searchRepo(query = searchQuery)
-        return response.cachedIn(viewModelScope)
+        val lastResult = currentSearchResult
+
+        if(searchQuery == currentSearch && lastResult != null){
+            return lastResult
+        }
+
+        currentSearch = searchQuery
+
+        val result = githubRepo.searchRepo(query = searchQuery).cachedIn(viewModelScope)
+        currentSearchResult = result
+        return result
     }
 
 }
