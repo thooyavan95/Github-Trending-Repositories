@@ -31,4 +31,16 @@ class GithubRepo(private val database : GithubRepoDB) {
 
     }
 
+    fun searchRepo(query : String) : Flow<PagingData<Repo>> {
+
+        return Pager(
+            config = PagingConfig(
+                PAGING_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { database.repoDAO().getReposBySearch(query)}
+        ).flow
+
+    }
+
 }

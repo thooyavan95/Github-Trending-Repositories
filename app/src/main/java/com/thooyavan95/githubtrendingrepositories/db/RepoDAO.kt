@@ -19,4 +19,7 @@ interface RepoDAO {
     @Query("DELETE FROM repos")
     suspend fun clearRepo()
 
+    @Query("SELECT * FROM repos WHERE name LIKE :query OR description LIKE :query")
+    fun getReposBySearch(query : String) : PagingSource<Int, Repo>
+
 }
