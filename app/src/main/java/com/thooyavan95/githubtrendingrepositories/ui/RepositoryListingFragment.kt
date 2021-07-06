@@ -1,18 +1,20 @@
 package com.thooyavan95.githubtrendingrepositories.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.thooyavan95.githubtrendingrepositories.R
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryLoadStateAdapter
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RepositoryListingFragment : Fragment() {
@@ -27,7 +29,16 @@ class RepositoryListingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentRepositoryListingBinding.inflate(inflater, container, false)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding?.toolbar)
         return binding?.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.menu, menu)
+
+        val menuItem = menu.findItem(R.id.action_search)
+        binding?.searchView?.setMenuItem(menuItem)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,6 +54,19 @@ class RepositoryListingFragment : Fragment() {
 
         observeRepoListLiveData()
         observeRepoListLoadState()
+        
+        binding?.searchView?.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    search(query)
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    return false
+                }
+            })
+
+
 
     }
 
@@ -85,6 +109,22 @@ class RepositoryListingFragment : Fragment() {
             loadState.prepend as? LoadState.Error
 
         }
+    }
+
+    private fun search(query : String?){
+
+        query?.let {
+            lifecycleScope.launch {
+                viewModel.doSearch(query).collectLatest {
+                    repoAdapter.submitData(it)
+                }
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onDestroyView() {

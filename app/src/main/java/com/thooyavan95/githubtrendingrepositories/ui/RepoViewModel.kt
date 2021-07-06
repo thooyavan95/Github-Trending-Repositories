@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
 import com.thooyavan95.githubtrendingrepositories.repository.GithubRepo
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class RepoViewModel(private val githubRepo : GithubRepo) : ViewModel() {
@@ -20,10 +21,10 @@ class RepoViewModel(private val githubRepo : GithubRepo) : ViewModel() {
         }
     }
 
-    fun doSearch(searchQuery : String){
+    fun doSearch(searchQuery : String) : Flow<PagingData<Repo>> {
 
         val response = githubRepo.searchRepo(query = searchQuery)
-        repoSearchLiveData = response.asLiveData().cachedIn(viewModelScope)
+        return response.cachedIn(viewModelScope)
     }
 
 }

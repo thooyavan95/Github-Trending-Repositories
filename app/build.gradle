@@ -71,4 +71,7 @@ dependencies {
     //paging
     implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
 
+    //search_view
+    implementation  'com.miguelcatalan:materialsearchview:1.4.0'
+
 }
