@@ -16,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:indeterminateTint="@color/blue"
         style="?android:attr/progressBarStyle"
         android:id="@+id/footer_progress_bar"/>
 
@@ -25,6 +26,6 @@
         android:id="@+id/retry_button"
         android:layout_gravity="center"
         tools:text="Try Again"
-        android:text="Try Again"/>
+        android:text="@string/try_again"/>
 
 </LinearLayout>

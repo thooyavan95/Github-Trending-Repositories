@@ -57,6 +57,7 @@ class RepositoryListingFragment : Fragment() {
 
         initAdapter()
 
+        setListenerToRetry()
         setListenerToSwipeRefresh()
         observeRepoListIfQueryNull(savedInstanceState)
 
@@ -112,6 +113,13 @@ class RepositoryListingFragment : Fragment() {
         })
     }
 
+    private fun setListenerToRetry(){
+
+        binding?.retryButton?.setOnClickListener {
+            repoAdapter.retry()
+        }
+    }
+
     private fun observeRepoListIfQueryNull(savedInstanceState: Bundle?){
 
         val query = savedInstanceState?.getString(LAST_SEARCH_QUERY)
@@ -160,7 +168,7 @@ class RepositoryListingFragment : Fragment() {
                 .takeIf { it is LoadState.Error && repoAdapter.itemCount > 0 }
                 ?: loadState.prepend
 
-            binding?.recyclerView?.isVisible = loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading
+            binding?.recyclerView?.isVisible = (loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading) && repoAdapter.itemCount != 0
             binding?.retryButton?.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
             binding?.progressBar?.isVisible = loadState.mediator?.refresh is LoadState.Loading
 
