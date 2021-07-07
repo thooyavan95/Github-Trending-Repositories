@@ -74,4 +74,7 @@ dependencies {
     //search_view
     implementation  'com.miguelcatalan:materialsearchview:1.4.0'
 
+    //swipe_refresh
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
 }

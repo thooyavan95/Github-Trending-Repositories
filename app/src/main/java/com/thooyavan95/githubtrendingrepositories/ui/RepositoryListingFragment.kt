@@ -55,18 +55,10 @@ class RepositoryListingFragment : Fragment() {
 
         viewModel = RepoViewModelFactory.getViewModel(this, requireActivity().application)
 
-        val decoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        binding?.recyclerView?.addItemDecoration(decoration)
-
         initAdapter()
 
-        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY)
-
-        if(query != null){
-            search(query)
-        }else{
-            observeRepoListLiveData()
-        }
+        setListenerToSwipeRefresh()
+        observeRepoListIfQueryNull(savedInstanceState)
 
         observeRepoListLoadState()
         searchQueryListener()
@@ -80,6 +72,9 @@ class RepositoryListingFragment : Fragment() {
 
     private fun initAdapter(){
 
+        val decoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        binding?.recyclerView?.addItemDecoration(decoration)
+
         repoAdapter = RepositoryAdapter()
 
         binding?.recyclerView?.apply {
@@ -87,6 +82,20 @@ class RepositoryListingFragment : Fragment() {
             adapter = repoAdapter
         }
 
+    }
+
+    private fun setListenerToSwipeRefresh(){
+
+        binding?.swipeRefresh?.setOnRefreshListener {
+
+            binding?.let{
+                if(it.searchView.isSearchOpen){
+                    it.searchView.closeSearch()
+                }
+            }
+
+            observeRepoListLiveData()
+        }
     }
 
     private fun searchQueryListener(){
@@ -103,12 +112,30 @@ class RepositoryListingFragment : Fragment() {
         })
     }
 
+    private fun observeRepoListIfQueryNull(savedInstanceState: Bundle?){
+
+        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY)
+
+        if(query != null){
+            search(query)
+        }else{
+            observeRepoListLiveData()
+        }
+    }
+
     private fun observeRepoListLiveData() {
 
         listingJob?.cancel()
         listingJob = lifecycleScope.launch {
             viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer {
                 repoAdapter.submitData(lifecycle, it)
+
+                binding?.let { binding ->
+                    if(binding.swipeRefresh.isRefreshing){
+                        binding.swipeRefresh.isRefreshing = false
+                    }
+                }
+
             })
         }
     }
