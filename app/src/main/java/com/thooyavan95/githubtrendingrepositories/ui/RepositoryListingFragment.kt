@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.thooyavan95.githubtrendingrepositories.R
@@ -53,6 +54,9 @@ class RepositoryListingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         viewModel = RepoViewModelFactory.getViewModel(this, requireActivity().application)
+
+        val decoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        binding?.recyclerView?.addItemDecoration(decoration)
 
         initAdapter()
 

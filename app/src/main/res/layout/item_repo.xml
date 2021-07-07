@@ -3,19 +3,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingVertical="@dimen/vertical_padding"
+    android:paddingHorizontal="@dimen/horizontal_padding"
+    android:layout_marginVertical="@dimen/vertical_margin"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/item_repo_id"
+        android:id="@+id/item_repo_owner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="12" />
+        android:drawablePadding="@dimen/drawable_padding"
+        app:drawableLeftCompat="@drawable/ic_dice_square"
+        tools:text="square" />
 
     <TextView
         android:id="@+id/item_repo_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        android:textColor="@color/black"
         tools:text="Repo name" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#47484e"
+        android:id="@+id/item_repo_description"
+        tools:text="A python framework for data science"/>
 
 </LinearLayout>

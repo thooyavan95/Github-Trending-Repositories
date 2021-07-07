@@ -13,8 +13,9 @@ class RepositoryItemViewHolder(private val binding : ItemRepoBinding) : Recycler
 
         if(repo != null){
 
-            binding.itemRepoId.text = repo.id.toString()
+            binding.itemRepoOwner.text = repo.name
             binding.itemRepoName.text = repo.name
+            binding.itemRepoDescription.text = repo.description
         }
     }
 
