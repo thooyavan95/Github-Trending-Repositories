@@ -2,6 +2,7 @@ package com.thooyavan95.githubtrendingrepositories.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -57,12 +58,14 @@ class RepositoryListingFragment : Fragment() {
 
         initAdapter()
 
+        setSwipeRefreshColors()
         setListenerToRetry()
         setListenerToSwipeRefresh()
         observeRepoListIfQueryNull(savedInstanceState)
 
         observeRepoListLoadState()
         searchQueryListener()
+        observeBackPressed()
 
     }
 
@@ -196,6 +199,32 @@ class RepositoryListingFragment : Fragment() {
             searchQuery = query
             collectSearchResultsFlow(query)
         }
+    }
+
+    private fun setSwipeRefreshColors(){
+
+        binding?.swipeRefresh?.apply {
+            setProgressBackgroundColorSchemeResource(R.color.blue)
+            setColorSchemeResources(R.color.white)
+        }
+    }
+
+    private fun observeBackPressed(){
+
+        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+
+                binding?.let {
+                    if(it.searchView.isSearchOpen){
+                        it.searchView.closeSearch()
+                    }else{
+                        isEnabled = false
+                        requireActivity().onBackPressed()
+                    }
+                }
+
+            }
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
