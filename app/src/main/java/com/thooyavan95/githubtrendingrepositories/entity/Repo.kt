@@ -8,5 +8,6 @@ data class Repo(
     @PrimaryKey
     val id : Long,
     val name : String,
-    val description : String?
+    val description : String?,
+    val owner: Owner
 )

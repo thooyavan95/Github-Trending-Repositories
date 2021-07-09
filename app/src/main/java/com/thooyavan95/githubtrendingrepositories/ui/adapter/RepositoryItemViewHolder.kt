@@ -13,7 +13,7 @@ class RepositoryItemViewHolder(private val binding : ItemRepoBinding) : Recycler
 
         if(repo != null){
 
-            binding.itemRepoOwner.text = repo.name
+            binding.itemRepoOwner.text = repo.owner.repoOwnerName
             binding.itemRepoName.text = repo.name
             binding.itemRepoDescription.text = repo.description
         }
