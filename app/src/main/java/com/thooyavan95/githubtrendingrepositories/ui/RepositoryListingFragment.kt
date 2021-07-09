@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -98,6 +99,7 @@ class RepositoryListingFragment : Fragment() {
                 }
             }
 
+            repoAdapter.retry()
             observeRepoListLiveData()
         }
     }
@@ -140,7 +142,6 @@ class RepositoryListingFragment : Fragment() {
         listingJob = lifecycleScope.launch {
             viewModel.repoListLiveData.observe(viewLifecycleOwner, Observer {
                 repoAdapter.submitData(lifecycle, it)
-
                 binding?.let { binding ->
                     if(binding.swipeRefresh.isRefreshing){
                         binding.swipeRefresh.isRefreshing = false
@@ -154,7 +155,7 @@ class RepositoryListingFragment : Fragment() {
 
     private fun observeRepoListLoadState() {
 
-        val header = RepositoryLoadStateAdapter{
+        val header = RepositoryLoadStateAdapter {
             repoAdapter.retry()
         }
 
@@ -171,15 +172,14 @@ class RepositoryListingFragment : Fragment() {
                 .takeIf { it is LoadState.Error && repoAdapter.itemCount > 0 }
                 ?: loadState.prepend
 
-            binding?.recyclerView?.isVisible = (loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading) && repoAdapter.itemCount != 0
-            binding?.retryButton?.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
-            binding?.progressBar?.isVisible = loadState.mediator?.refresh is LoadState.Loading
+            binding?.let {binding ->
+                binding.recyclerView.isVisible = (loadState.mediator?.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading) && repoAdapter.itemCount != 0
+                binding.retryButton.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
+                binding.progressBar.isVisible = loadState.mediator?.refresh is LoadState.Loading
+            }
 
-            loadState.source.append as? LoadState.Error ?:
-            loadState.source.prepend as? LoadState.Error ?:
-            loadState.append as? LoadState.Error ?:
-            loadState.prepend as? LoadState.Error
-
+            setSearchVisibility(loadState)
+            setListingError(loadState)
         }
     }
 
@@ -199,6 +199,22 @@ class RepositoryListingFragment : Fragment() {
             searchQuery = query
             collectSearchResultsFlow(query)
         }
+    }
+
+    private fun setListingError(loadState: CombinedLoadStates){
+
+        val error = loadState.refresh as? LoadState.Error
+
+        binding?.listingError?.apply {
+            isVisible = loadState.refresh is LoadState.NotLoading && repoAdapter.itemCount == 0 || loadState.refresh is LoadState.Error && repoAdapter.itemCount == 0
+            text = error?.error?.localizedMessage ?: context.getString(R.string.no_results_found)
+        }
+    }
+
+    private fun setSearchVisibility(loadState: CombinedLoadStates){
+
+        val shouldMenuVisible = loadState.mediator?.refresh is LoadState.NotLoading && repoAdapter.itemCount != 0 || loadState.refresh is LoadState.Error && repoAdapter.itemCount != 0
+        setMenuVisibility(shouldMenuVisible)
     }
 
     private fun setSwipeRefreshColors(){

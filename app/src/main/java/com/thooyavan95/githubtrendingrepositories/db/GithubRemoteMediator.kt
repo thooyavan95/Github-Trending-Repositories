@@ -7,6 +7,8 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
 import com.thooyavan95.githubtrendingrepositories.network.Retrofit
+import retrofit2.HttpException
+import java.io.IOException
 
 private const val GITHUB_STARTING_ITEM_ID = 0L
 
@@ -47,7 +49,10 @@ class GithubRemoteMediator(private val database : GithubRepoDB) : RemoteMediator
 
             return MediatorResult.Success(endOfPaginationReached = endOfPagination)
 
-        }catch (e : Exception){
+        }catch (e : HttpException){
+
+            return MediatorResult.Error(e)
+        }catch (e : IOException){
 
             return MediatorResult.Error(e)
         }
