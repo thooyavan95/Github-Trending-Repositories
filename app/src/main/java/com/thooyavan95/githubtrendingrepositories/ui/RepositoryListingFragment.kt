@@ -108,7 +108,7 @@ class RepositoryListingFragment : Fragment() {
 
         binding?.searchView?.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-                search(query)
+                search(query?.trim())
                 return true
             }
 
