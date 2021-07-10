@@ -7,10 +7,11 @@ import androidx.paging.PagingData
 import com.thooyavan95.githubtrendingrepositories.db.GithubRemoteMediator
 import com.thooyavan95.githubtrendingrepositories.db.GithubRepoDB
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
+import com.thooyavan95.githubtrendingrepositories.network.GithubService
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalPagingApi::class)
-class GithubRepo(private val database : GithubRepoDB) {
+class GithubRepo(private val database : GithubRepoDB, private val apiService: GithubService) {
 
     companion object{
         private const val PAGING_SIZE = 30
@@ -24,7 +25,7 @@ class GithubRepo(private val database : GithubRepoDB) {
                 enablePlaceholders = false
             ),
 
-            remoteMediator = GithubRemoteMediator(database),
+            remoteMediator = GithubRemoteMediator(database, apiService),
 
             pagingSourceFactory = {database.repoDAO().getAllRepos()}
         ).flow

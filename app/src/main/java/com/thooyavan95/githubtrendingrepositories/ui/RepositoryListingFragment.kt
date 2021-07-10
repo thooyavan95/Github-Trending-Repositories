@@ -13,6 +13,7 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.thooyavan95.githubtrendingrepositories.MainActivity
 import com.thooyavan95.githubtrendingrepositories.R
 import com.thooyavan95.githubtrendingrepositories.databinding.FragmentRepositoryListingBinding
 import com.thooyavan95.githubtrendingrepositories.ui.adapter.RepositoryAdapter
@@ -55,7 +56,7 @@ class RepositoryListingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        viewModel = RepoViewModelFactory.getViewModel(this, requireActivity().application)
+        viewModel = RepoViewModelFactory(requireActivity() as MainActivity).create(RepoViewModel::class.java)
 
         initAdapter()
 
@@ -99,7 +100,6 @@ class RepositoryListingFragment : Fragment() {
                 }
             }
 
-            repoAdapter.retry()
             observeRepoListLiveData()
         }
     }

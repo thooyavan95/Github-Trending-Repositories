@@ -5,13 +5,11 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object Retrofit {
+private const val BASE_URL = "https://api.github.com/"
 
-    lateinit var instance : GithubService
+class Retrofit(private val context : Context) {
 
-    private const val BASE_URL = "https://api.github.com/"
-
-    fun init(context : Context){
+    fun getInstance() : GithubService{
 
         val httpclient = OkHttpClient.Builder()
             .addInterceptor(NetworkInterceptor(context))
@@ -24,7 +22,7 @@ object Retrofit {
                 client(httpclient)
             }.build()
 
-        instance = retrofitInstance.create(GithubService::class.java)
+        return retrofitInstance.create(GithubService::class.java)
     }
 
 

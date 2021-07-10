@@ -6,6 +6,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.thooyavan95.githubtrendingrepositories.entity.Repo
+import com.thooyavan95.githubtrendingrepositories.network.GithubService
 import com.thooyavan95.githubtrendingrepositories.network.Retrofit
 import retrofit2.HttpException
 import java.io.IOException
@@ -13,7 +14,7 @@ import java.io.IOException
 private const val GITHUB_STARTING_ITEM_ID = 0L
 
 @OptIn(ExperimentalPagingApi::class)
-class GithubRemoteMediator(private val database : GithubRepoDB) : RemoteMediator<Int, Repo>() {
+class GithubRemoteMediator(private val database : GithubRepoDB, private val apiService: GithubService) : RemoteMediator<Int, Repo>() {
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Repo>): MediatorResult {
 
@@ -34,7 +35,7 @@ class GithubRemoteMediator(private val database : GithubRepoDB) : RemoteMediator
 
         try {
 
-            val response = Retrofit.instance.fetchRepos(nextID)
+            val response = apiService.fetchRepos(nextID)
 
             val endOfPagination = response.isEmpty()
 
